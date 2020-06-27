@@ -1,0 +1,97 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class HUDBookMgr : GHUD
+{
+    // ================================== VARIABLES ==================================
+    #region Vars
+    [SerializeField]
+    private Button m_NextBtn;
+    [SerializeField]
+    private Button m_PrevBtn;
+    [SerializeField]
+    private Image m_TrashTitle;
+    // reference vars
+    [SerializeField]
+    private Text m_VocabularyText;
+    [SerializeField]
+    private Text m_DescriptionText;
+    // prefab vars
+    // private vars
+    private VocasInfo m_VocasInfo;
+    private int m_VocaIndex;
+    private int m_TopicIndex;
+    #endregion
+
+    // =================================== OVERRIDE func ===================================
+    #region OVERRIDE func
+    public override void OnCreateObj()
+    {
+        base.OnCreateObj();
+        m_NextBtn.onClick.AddListener(() => OnClickArrowBtn());
+        m_PrevBtn.onClick.AddListener(() => OnClickArrowBtn());
+    }
+
+    public override void OnUpdateObj(float a_dt)
+    {
+        base.OnUpdateObj(a_dt);
+    }
+
+    public override void OnDestroyObj()
+    {
+        base.OnDestroyObj();
+    }
+    #endregion
+
+    // =================================== OVERRIDE func ===================================
+    #region OVERRIDE func
+    public override void Init(HUDInfo a_HUDInfo)
+    {
+        base.Init(a_HUDInfo);
+
+        // default get vocabulaties of first topic
+        m_TopicIndex = 0;
+        m_VocaIndex = 0;
+        m_VocasInfo = DbMgr.s_Instance.GetVocasInfo(m_TopicIndex);
+
+        SetTrashImage();
+        SetVocaContent();
+    }
+    #endregion
+
+    // ================================== PUBLIC FUNCS ==================================
+    #region Public Funcs
+    public void OnClickArrowBtn(bool a_IsNextBtn)
+    {
+        if (a_IsNextBtn)
+            m_VocaIndex++;
+        else
+            m_VocaIndex--;
+    }
+    #endregion
+
+    // ================================== PRIVATE FUNCS ==================================
+    #region Private Funcs
+    private void SetVocaContent()
+    {
+        VocaInfo vocaInfo = m_VocasInfo.m_lVocas[m_VocaIndex];
+        m_VocabularyText.text = vocaInfo.m_Voca.ToUpper();
+        m_DescriptionText.text = vocaInfo.m_Def;
+    }
+
+    private void SetTrashImage()
+    {
+        Sprite trashSprite = Resources.Load<Sprite>(AssetPathConstant.FOLDER_PROGRESS_TRASH_PATH + "/" + m_TopicIndex);
+        if (trashSprite)
+        {
+            m_TrashTitle.sprite = trashSprite;
+            // set scale and size delta for obj
+            RectTransform trashRt = m_TrashTitle.GetComponent<RectTransform>();
+            trashRt.sizeDelta = new Vector2(trashSprite.rect.width, trashSprite.rect.height);
+        }
+    }
+    #endregion
+}
